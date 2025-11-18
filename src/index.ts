@@ -1,12 +1,24 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authroutes.js";
+import mongoose from "mongoose";
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
+
+// MongoDB Atlas connection
+const MONGO_URI = process.env.MONGO_URI || "<your-mongodb-atlas-uri>";
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("Connected to MongoDB Atlas"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
 
 // Health Check Route
 app.get("/", (req, res) => {

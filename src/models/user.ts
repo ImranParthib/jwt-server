@@ -1,14 +1,13 @@
+import mongoose from "mongoose";
+
 export interface User {
-  id: number;
   username: string;
   passwordHash: string;
 }
 
-// Pretend DB
-export const users: User[] = [
-  {
-    id: 1,
-    username: "testuser",
-    passwordHash: require("bcryptjs").hashSync("password123", 8),
-  },
-];
+const userSchema = new mongoose.Schema<User>({
+  username: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+});
+
+export const UserModel = mongoose.model<User>("User", userSchema);

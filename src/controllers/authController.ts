@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { users } from "../models/user.js";
-import type { User } from "../models/user.ts";
+import { UserModel } from "../models/user.js";
 import type { Request, Response } from "express";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret123";
@@ -9,7 +8,7 @@ const JWT_REFRESH_TOKEN = process.env.JWT_REFRESH_TOKEN || "refreshsecret123";
 
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
-  const user = users.find((u) => u.username === username);
+  const user = await UserModel.findOne({ username });
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
@@ -22,7 +21,18 @@ export const login = async (req: Request, res: Response) => {
   res.json({ token, refreshToken });
 };
 
-export const refreshToken = (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+  if (await UserModel.findOne({ username })) {
+    return res.status(409).json({ message: "Username already exists" });
+  }
+  const passwordHash = await bcrypt.hash(password, 8);
+  const newUser = new UserModel({ username, passwordHash });
+  await newUser.save();
+  res.status(201).json({ message: "User registered successfully" });
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
   if (!refreshToken || typeof refreshToken !== "string") {
     return res.status(400).json({ message: "Refresh token is required" });
@@ -32,7 +42,7 @@ export const refreshToken = (req: Request, res: Response) => {
       refreshToken,
       JWT_REFRESH_TOKEN
     ) as jwt.JwtPayload;
-    const user = users.find((u) => u.id === payload.id);
+    const user = await UserModel.findById(payload.id);
     if (!user) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
