@@ -1,12 +1,36 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/authroutes.js";
 import mongoose from "mongoose";
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+
+// Security middleware
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
+app.use(limiter);
+
+// CORS configuration
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? ["your-react-native-app-domain"] // Add your RN app's domain if needed
+        : true,
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "10mb" }));
 
 const PORT = process.env.PORT || 3000;
 
@@ -28,11 +52,15 @@ mongoose
 
 // Health Check Route
 app.get("/", (req, res) => {
-  res.send("JWT Auth Server is running");
+  res.json({
+    message: "JWT Auth Server is running",
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Auth Routes
-app.use("/", authRoutes);
+app.use("/api", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
