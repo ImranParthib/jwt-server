@@ -8,6 +8,11 @@ const JWT_REFRESH_TOKEN = process.env.JWT_REFRESH_TOKEN || "refreshsecret123";
 
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
+
+  // Input validation
+  if (!username || !password) {
+    return res.status(400).json({ message: "Username and password required" });
+  }
   const user = await UserModel.findOne({ username });
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     return res.status(401).json({ message: "Invalid credentials" });
