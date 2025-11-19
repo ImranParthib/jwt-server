@@ -20,15 +20,7 @@ app.use(helmet());
 // app.use(limiter);
 
 // CORS configuration
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["your-react-native-app-domain"] // Add your RN app's domain if needed
-        : true,
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json({ limit: "10mb" }));
 
