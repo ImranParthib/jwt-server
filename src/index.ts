@@ -10,7 +10,12 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 // MongoDB Atlas connection
-const MONGO_URI = process.env.MONGO_URI || "<your-mongodb-atlas-uri>";
+const MONGO_URI = process.env.MONGODB_URI || "";
+
+if (!MONGO_URI) {
+  console.error("MongoDB connection string (MONGODB_URI) is not set.");
+  process.exit(1);
+}
 
 mongoose
   .connect(MONGO_URI)
