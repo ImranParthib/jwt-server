@@ -32,7 +32,7 @@ app.use(
 
 app.use(express.json({ limit: "10mb" }));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // MongoDB Atlas connection
 const MONGO_URI = process.env.MONGODB_URI || "";
