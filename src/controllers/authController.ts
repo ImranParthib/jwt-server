@@ -12,10 +12,14 @@ export const login = async (req: Request, res: Response) => {
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
-  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
-    expiresIn: "15m",
-  });
-  const refreshToken = jwt.sign({ id: user.id }, JWT_REFRESH_TOKEN, {
+  const token = jwt.sign(
+    { id: user._id, username: user.username },
+    JWT_SECRET,
+    {
+      expiresIn: "15m",
+    }
+  );
+  const refreshToken = jwt.sign({ id: user._id }, JWT_REFRESH_TOKEN, {
     expiresIn: "7d",
   });
   res.json({ token, refreshToken });
@@ -47,7 +51,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
     const newToken = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user._id, username: user.username },
       JWT_SECRET,
       { expiresIn: "15m" }
     );
