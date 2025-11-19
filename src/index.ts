@@ -53,7 +53,7 @@ mongoose
 // Health Check Route
 app.get("/", (req, res) => {
   res.json({
-    message: "JWT Auth Server is running",
+    message: "JWT Auth Server is running smoothly!",
     status: "healthy",
     timestamp: new Date().toISOString(),
   });
